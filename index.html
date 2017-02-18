@@ -16,7 +16,8 @@ var context = canvas.getContext("2d");
 var MARGIN_TOP;
 var MARGIN_LEFT;
 var showTime = new Date();
-
+var balls=[];
+const colors = ["#51F511","#66FAD5","#EF1C3E","#FFFA5F","#DE48CD","#310CF2"];
 window.onload = function () {
     WINDOW_WIDTH = document.documentElement.clientWidth;
     WINDOW_HEIGHT = document.documentElement.clientHeight;
@@ -28,16 +29,22 @@ window.onload = function () {
     canvas.width = WINDOW_WIDTH;
     canvas.height = WINDOW_HEIGHT;
     render(context);
+    setInterval(function(){
+        render(context);
+        update();
+    }, 50);
+    
 }
 /**
 *
 *@param ctx 保存上下文状态
 */
 function render( cxt){
+    cxt.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);  //情况画布内容
     var hours = parseInt(showTime.getHours());
     var minutes = parseInt(showTime.getMinutes());
     var seconds = parseInt(showTime.getSeconds());
-    
+
     renderDigit(MARGIN_LEFT, MARGIN_TOP, parseInt(hours/10), cxt);
     renderDigit(MARGIN_LEFT + 15*(RADIUS+1), MARGIN_TOP, parseInt(hours%10), cxt);
     renderDigit(MARGIN_LEFT + 30*(RADIUS+1), MARGIN_TOP, 10, cxt);
@@ -47,6 +54,15 @@ function render( cxt){
     renderDigit(MARGIN_LEFT + 78*(RADIUS+1), MARGIN_TOP, parseInt(seconds/10), cxt);
     renderDigit(MARGIN_LEFT + 93*(RADIUS+1), MARGIN_TOP, parseInt(seconds%10), cxt);
 
+    for(var i=0; i<balls.length; i++){
+        cxt.fillStyle = balls[i].color;
+        cxt.beginPath();
+        cxt.arc(balls[i].x, balls[i].y, RADIUS, 0, 2*Math.PI);
+        cxt.closePath();
+        cxt.fill();
+        cxt.strokeStyle = "#005588"; 
+        cxt.stroke();
+    }
 }
 
 
@@ -62,6 +78,77 @@ function renderDigit(x, y, num, cxt){
             }
 
         }
+    }
+}
+
+function update(){
+    var nextTime = new Date();
+    var nextTimeHours = parseInt(nextTime.getHours());
+    var nextTimeMinutes = parseInt(nextTime.getMinutes());
+    var nextTimeSeconds = parseInt(nextTime.getSeconds());
+    var showTimeHours = parseInt(showTime.getHours());
+    var showTimeMinutes = parseInt(showTime.getMinutes());
+    var showTimeSeconds = parseInt(showTime.getSeconds());
+    if(nextTime != showTime){
+        if(parseInt(nextTimeHours / 10) != parseInt(showTimeHours /10)){
+            addBalls(MARGIN_LEFT, MARGIN_TOP, parseInt(nextTimeHours/10));
+        }
+        if(parseInt(nextTimeHours % 10) != parseInt(showTimeHours %10)){
+            addBalls(MARGIN_LEFT +15*(RADIUS+1), MARGIN_TOP, parseInt(nextTimeHours%10));
+        }
+        if(parseInt(nextTimeMinutes / 10) != parseInt(showTimeMinutes /10)){
+            addBalls(MARGIN_LEFT +39*(RADIUS+1), MARGIN_TOP, parseInt(nextTimeMinutes/10));
+        }
+        if(parseInt(nextTimeMinutes % 10) != parseInt(showTimeMinutes %10)){
+            addBalls(MARGIN_LEFT +54*(RADIUS+1), MARGIN_TOP, parseInt(nextTimeMinutes%10));
+        }
+        if(parseInt(nextTimeSeconds / 10) != parseInt(showTimeSeconds /10)){
+            addBalls(MARGIN_LEFT +78*(RADIUS+1), MARGIN_TOP, parseInt(nextTimeSeconds/10));
+        }
+        if(parseInt(nextTimeSeconds % 10) != parseInt(showTimeSeconds %10)){
+            addBalls(MARGIN_LEFT +93*(RADIUS+1), MARGIN_TOP, parseInt(nextTimeSeconds%10));
+        }
+    }
+    showTime = nextTime;
+    updateBalls();
+}
+
+function addBalls(x, y, num){
+     for(var i =0; i<digit[num].length; i++){
+        for(var j =0; j<digit[num][i].length; j++){
+            if(digit[num][i][j] == 1){
+                var newBall = {
+                    x: x + (RADIUS+1) + j*2*(RADIUS+1),
+                    y: y + (RADIUS+1) + i*2*(RADIUS+1),
+                    g: 1.5 + Math.random(),
+                    vx: Math.pow(-1,Math.floor(Math.random()*100))*5,
+                    vy: -Math.ceil(Math.random()*10 + 2),
+                    color: colors[Math.floor(Math.random()*colors.length)]
+                }
+                balls.push(newBall);
+            }
+        }
+    }
+}
+
+function updateBalls (){
+    for(var i=0; i<balls.length; i++){
+        balls[i].x += balls[i].vx;
+        balls[i].y += balls[i].vy;
+        balls[i].vy += balls[i].g;
+        if(balls[i].y > WINDOW_HEIGHT - RADIUS ){
+            balls[i].y = WINDOW_HEIGHT -RADIUS;
+            balls[i].vy = -balls[i].vy * 0.5;
+        }
+    }
+    var ballsContol = 0;
+    for(i =0; i<balls.length; i++){
+        if(balls[i].x + RADIUS >0 && balls[i].x-RADIUS < WINDOW_WIDTH){
+            balls[ballsContol++] = balls[i];
+        }
+    }
+    while(balls.length>Math.min(ballsContol, 300)){
+        balls.pop();
     }
 }
 </script>
