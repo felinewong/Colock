@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <title>CanvasColock</title>
+</head>
+<body style="height:100%">
+    <canvas id="canvas" style="height:100%"></canvas>
+</body>
+<script type="text/javascript" src="digit.js"></script>
+<script type="text/javascript" >
+var WINDOW_WIDTH;
+var WINDOW_HEIGHT;
+var RADIUS;
+var context = canvas.getContext("2d");
+var MARGIN_TOP;
+var MARGIN_LEFT;
+var showTime = new Date();
+
+window.onload = function () {
+    WINDOW_WIDTH = document.documentElement.clientWidth;
+    WINDOW_HEIGHT = document.documentElement.clientHeight;
+    MARGIN_LEFT = Math.round(WINDOW_WIDTH / 10);
+    MARGIN_TOP = Math.round(WINDOW_HEIGHT / 5);
+    RADIUS = Math.round(WINDOW_WIDTH * 4 / 5 / 108)-1;
+    var canvas = document.getElementById("canvas");
+    showTime = new Date();
+    canvas.width = WINDOW_WIDTH;
+    canvas.height = WINDOW_HEIGHT;
+    render(context);
+}
+/**
+*
+*@param ctx 保存上下文状态
+*/
+function render( cxt){
+    var hours = parseInt(showTime.getHours());
+    var minutes = parseInt(showTime.getMinutes());
+    var seconds = parseInt(showTime.getSeconds());
+    
+    renderDigit(MARGIN_LEFT, MARGIN_TOP, parseInt(hours/10), cxt);
+    renderDigit(MARGIN_LEFT + 15*(RADIUS+1), MARGIN_TOP, parseInt(hours%10), cxt);
+    renderDigit(MARGIN_LEFT + 30*(RADIUS+1), MARGIN_TOP, 10, cxt);
+    renderDigit(MARGIN_LEFT + 39*(RADIUS+1), MARGIN_TOP, parseInt(minutes/10), cxt);
+    renderDigit(MARGIN_LEFT + 54*(RADIUS+1), MARGIN_TOP, parseInt(minutes%10), cxt);
+    renderDigit(MARGIN_LEFT + 69*(RADIUS+1), MARGIN_TOP, 10, cxt);
+    renderDigit(MARGIN_LEFT + 78*(RADIUS+1), MARGIN_TOP, parseInt(seconds/10), cxt);
+    renderDigit(MARGIN_LEFT + 93*(RADIUS+1), MARGIN_TOP, parseInt(seconds%10), cxt);
+
+}
+
+
+function renderDigit(x, y, num, cxt){
+    cxt.fillStyle = "rgb(0,102,153)";
+    for(var i =0; i<digit[num].length; i++){
+        for(var j =0; j<digit[num][i].length; j++){
+            if(digit[num][i][j] == 1){
+                cxt.beginPath();
+                cxt.arc(x+j*2*(RADIUS+1)+(RADIUS+1), y+i*2*(RADIUS+1)+(RADIUS+1), RADIUS, 0, 2*Math.PI);
+                cxt.closePath();
+                cxt.fill();
+            }
+
+        }
+    }
+}
+</script>
+</html>
